@@ -1,0 +1,26 @@
+#########data prep################
+
+import pandas as pd
+
+urls = ['https://raw.githubusercontent.com/jerrytigerxu/NBA-Salary-Prediction/master/data/Seasons_Stats.csv', 'https://raw.githubusercontent.com/jerrytigerxu/NBA-Salary-Prediction/master/data/1990_to_2018.csv', 'https://raw.githubusercontent.com/jerrytigerxu/NBA-Salary-Prediction/master/data/NBA%20Season%20Data.csv']
+
+data = {} # I'm creating a dictionary where all of my data can be stored in one place
+
+for f in urls:
+  d = pd.read_csv(f)
+  data[f.replace('.csv', '')[81:].replace('%20', '_')] = d
+  
+#############data clean###############
+#remove the first column of data frame#
+data['Seasons_Stats'] = data['Seasons_Stats'].drop(data['Seasons_Stats'].columns[0], axis=1)
+  
+data['Seasons_Stats'].head()
+  
+data['Seasons_Stats']['Year'].isnull().sum()
+data['Seasons_Stats'][data['Seasons_Stats']['Year'].isnull() == True]
+
+data['Seasons_Stats'] = data['Seasons_Stats'].dropna(subset=['Year'])
+
+data['Seasons_Stats']['Year'].isnull().sum()
+########No more NaN values in year column####
+
