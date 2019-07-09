@@ -24,3 +24,61 @@ data['Seasons_Stats'] = data['Seasons_Stats'].dropna(subset=['Year'])
 data['Seasons_Stats']['Year'].isnull().sum()
 ########No more NaN values in year column####
 
+data[Seasons_Stats']['Year'] = data['Seasons_Stats']['Year'].astype('int64')
+##Now can convert years into integers##
+
+data['Seasons_Stats'].head()
+
+data['Seasons_Stats'] = data['Seasons_Stats'][data['Seasons_Stats']['Year'] > 1980]
+data['Seasons_Stats'].head()
+
+data['Seasons_Stats'].columns
+
+
+
+######## Need to convert all of the money columns into floats############
+
+data['Salary'] = data['Salary'].replace('[\$,]', '', regex=True).astype(float)
+
+data['Total NBA Payroll'] = data['Total NBA Payroll'].replace('[\$,]', '', regex=True).astype(float)
+
+# Clear out the entire 'Team Payroll' column
+for rowNum in range(len(data.index.values)):
+  data = data.set_value(rowNum, 'Team Payroll', 0)
+  
+for rowNum in range(len(data.index.values)):
+  team = data.iloc[rowNum]['Team']
+  previousEntry = data.iloc[rowNum-1]['Team'] # Keeping track of what the previous team name was
+ 
+  if team != previousEntry: # Once it starts on a new team, add up every salary within it
+    teamPayroll = data.iloc[rowNum]['Salary'] # Starting value 
+    currentRow = rowNum # Example: we set current row to be row 1
+    
+    while True:
+      nextEntry = data.iloc[currentRow+1]['Team'] # We check all of the following rows...
+      
+      if team != nextEntry: # Until the last instance of the particular team name because it changes to a different one
+        data = data.set_value(rowNum, 'Team Payroll', teamPayroll)
+        break
+      teamPayroll += data.iloc[currentRow+1]['Salary']
+      currentRow += 1 
+      
+  elif team == previousEntry: # If the team is the same as the previous, just copy the total payroll
+      data = data.set_value(rowNum, 'Team Payroll', data.iloc[rowNum-1]['Team Payroll'])
+
+      
+  data.to_csv('./updated_nba_salaries.csv')
+  
+  
+  ######creating a player leverage column##############
+  
+  data['salaries']['Player Leverage'] = data['salaries']['Salary'] / data['salaries']['Team Payroll']
+  
+  data['salaries'].head()
+  
+  
+  
+  
+  
+  
+  
